@@ -4,55 +4,35 @@
   <meta charset="UTF-8">
   <title>Randevu Al</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .psikolog-kart {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .psikolog-kart img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-  </style>
 </head>
 <body>
   <header>
-    <h1>Psikoterapi Randevu Sistemi</h1>
-    <nav>
-      <a href="index.html">Ana Sayfa</a>
-      <a href="randevularım.html">Randevularım</a>
-      <a href="login.html">Çıkış Yap</a>
-    </nav>
+    <h1>Randevu Al</h1>
+    <nav id="navLinks"></nav>
   </header>
 
   <main>
-    <h2>Randevu Al</h2>
+    <section id="psikologListesi" class="psikologlar"></section>
 
-    <div id="psikologListesi"></div>
+    <section class="randevu-formu">
+      <h2>Randevu Al</h2>
+      <form id="randevuForm">
+        <label for="psikologSec">Psikolog Seç:</label>
+        <select id="psikologSec" required>
+          <option value="">Seçiniz</option>
+        </select>
 
-    <form id="randevuForm">
-      <label for="psikolog">Psikolog Seç:</label><br>
-      <select id="psikolog" name="psikolog" required>
-        <option value="">Seçiniz</option>
-      </select><br><br>
+        <label for="tarih">Tarih:</label>
+        <input type="date" id="tarih" required>
 
-      <label for="date">Tarih:</label><br>
-      <input type="date" id="date" name="date" required><br><br>
+        <label for="saatSec">Saat:</label>
+        <select id="saatSec" required>
+          <option value="">Önce psikolog ve tarih seçin</option>
+        </select>
 
-      <label for="time">Saat:</label><br>
-      <select id="time" name="time" required>
-        <option value="">Önce psikolog ve tarih seçin</option>
-      </select><br><br>
-
-      <button type="submit">Randevu Al</button>
-    </form>
+        <button type="submit">Randevu Al</button>
+      </form>
+    </section>
   </main>
 
   <footer>
@@ -60,118 +40,120 @@
   </footer>
 
   <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    const navLinks = document.getElementById("navLinks");
 
-    const psikologSelect = document.getElementById("psikolog");
-    const psikologListesi = document.getElementById("psikologListesi");
-    const timeSelect = document.getElementById("time");
-    const dateInput = document.getElementById("date");
-
-    let psikologVerileri = [];
-
-    // Psikologları getir ve listele
-    fetch("http://localhost:3000/psikologlar")
-      .then(res => res.json())
-      .then(data => {
-        psikologVerileri = data;
-        data.forEach(psikolog => {
-          const option = document.createElement("option");
-          option.value = psikolog.email;
-          option.textContent = `${psikolog.name}`;
-          psikologSelect.appendChild(option);
-
-          // Görsel olarak da listele
-          const card = document.createElement("div");
-          card.className = "psikolog-kart";
-          card.innerHTML = `
-            <img src="${psikolog.photo || 'https://via.placeholder.com/60'}" alt="Fotoğraf">
-            <div>
-              <strong>${psikolog.name}</strong><br>
-              Yaş: ${psikolog.age || 'Belirtilmemiş'}<br>
-              Uzmanlık: ${Array.isArray(psikolog.specialty) ? psikolog.specialty.join(", ") : 'Yok'}<br>
-              Uygun Saatler: ${Array.isArray(psikolog.availableHours) ? psikolog.availableHours.join(", ") : 'Yok'}
-            </div>
-          `;
-          psikologListesi.appendChild(card);
-        });
-      });
-
-    // Tarih veya psikolog değişince uygun saatleri getir
-    function updateAvailableTimes() {
-      const selectedEmail = psikologSelect.value;
-      const selectedDate = dateInput.value;
-      timeSelect.innerHTML = "";
-
-      const psikolog = psikologVerileri.find(p => p.email === selectedEmail);
-      if (!psikolog || !psikolog.availableHours) return;
-
-      // Randevuları al
-      fetch(`http://localhost:3000/appointments?psikolog=${selectedEmail}`)
-        .then(res => res.json())
-        .then(randevular => {
-          psikolog.availableHours.forEach(saat => {
-            const option = document.createElement("option");
-            option.value = saat;
-            const isTaken = randevular.some(r => r.date === selectedDate && r.time === saat);
-            if (!isTaken) {
-              option.textContent = saat;
-              timeSelect.appendChild(option);
-            }
-          });
-
-          if (timeSelect.children.length === 0) {
-            const noOption = document.createElement("option");
-            noOption.textContent = "Seçilebilir saat yok";
-            noOption.disabled = true;
-            timeSelect.appendChild(noOption);
-          }
-        });
+    // NAVIGATION BAR
+    if (user) {
+      navLinks.innerHTML = `
+        <span>Merhaba, ${user.name}</span>
+        <a href="randevularım.html">Randevularım</a>
+        ${user.role === "psikolog" ? '<a href="profile.html">Profilim</a>' : ''}
+        <a href="#" id="logoutBtn">Çıkış Yap</a>
+      `;
+    } else {
+      navLinks.innerHTML = `
+        <a href="login.html">Giriş Yap</a>
+        <a href="register.html">Kayıt Ol</a>
+      `;
     }
 
-    psikologSelect.addEventListener("change", updateAvailableTimes);
-    dateInput.addEventListener("change", updateAvailableTimes);
-
-    // Form gönderimi
-    const form = document.getElementById("randevuForm");
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const psikolog = psikologSelect.value;
-      const date = dateInput.value;
-      const time = timeSelect.value;
-
-      if (!psikolog || !date || !time) {
-        alert("Lütfen tüm alanları doldurun.");
-        return;
+    document.addEventListener("click", function (e) {
+      if (e.target.id === "logoutBtn") {
+        localStorage.removeItem("user");
+        window.location.href = "login.html";
       }
+    });
 
-      fetch("http://localhost:3000/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: user.email,
-          psikolog,
-          date,
-          time
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "Randevu oluşturuldu.");
-        form.reset();
-        timeSelect.innerHTML = '<option value="">Önce psikolog ve tarih seçin</option>';
-      })
-      .catch(err => {
-        console.error("Randevu hatası:", err);
-        alert("Bir hata oluştu.");
+    // SABİT DEMO PSİKOLOGLAR
+    const demoPsikologlar = [
+      {
+        name: "Mustafa Taha Polat",
+        email: "taha@demo.com",
+        age: 30,
+        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Recep_Tayyip_Erdoğan_2023_%28cropped%29.jpg/440px-Recep_Tayyip_Erdoğan_2023_%28cropped%29.jpg",
+        specialty: ["Travma", "Aile Terapisi"],
+        availableHours: ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+      },
+      {
+        name: "Bilal Kalender",
+        email: "bilal@demo.com",
+        age: 32,
+        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Joe_Biden_presidential_portrait.jpg/440px-Joe_Biden_presidential_portrait.jpg",
+        specialty: ["Aile terapisti", "Bağımlılık"],
+        availableHours: ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+      }
+    ];
+
+    const psikologListesi = document.getElementById("psikologListesi");
+    const selectPsikolog = document.getElementById("psikologSec");
+    const selectSaat = document.getElementById("saatSec");
+
+    // PSİKOLOGLARI GÖSTER
+    demoPsikologlar.forEach(p => {
+      // Kart gösterimi
+      const card = document.createElement("div");
+      card.classList.add("psikolog-karti");
+      card.innerHTML = `
+        <img src="${p.photo}" alt="${p.name}" width="100">
+        <div>
+          <strong>${p.name}</strong><br>
+          Yaş: ${p.age}<br>
+          Uzmanlık: ${p.specialty.join(", ")}<br>
+          Uygun Saatler: ${p.availableHours.join(", ")}
+        </div>
+      `;
+      psikologListesi.appendChild(card);
+
+      // Seçim için dropdown'a ekle
+      const option = document.createElement("option");
+      option.value = p.email;
+      option.textContent = p.name;
+      selectPsikolog.appendChild(option);
+    });
+
+    // SAATLERİ GÜNCELLE
+    selectPsikolog.addEventListener("change", () => {
+      const selected = demoPsikologlar.find(p => p.email === selectPsikolog.value);
+      if (!selected) return;
+      selectSaat.innerHTML = `<option value="">Saat Seç</option>`;
+      selected.availableHours.forEach(saat => {
+        const opt = document.createElement("option");
+        opt.value = saat;
+        opt.textContent = saat;
+        selectSaat.appendChild(opt);
       });
+    });
+
+    // FORM GÖNDERİMİ
+    document.getElementById("randevuForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const psikologEmail = selectPsikolog.value;
+      const date = document.getElementById("tarih").value;
+      const time = selectSaat.value;
+
+      if (!psikologEmail || !date || !time) return alert("Lütfen tüm alanları doldurun!");
+
+      const psikolog = demoPsikologlar.find(p => p.email === psikologEmail);
+      if (!psikolog) return;
+
+      const demoRandevu = {
+        id: Date.now(),
+        email: user?.email || "demo@demo.com",
+        client_name: user?.name || "Demo Danışan",
+        psikolog: psikolog.email,
+        psikolog_name: psikolog.name,
+        date,
+        time
+      };
+
+      const onceki = JSON.parse(localStorage.getItem("demoAppointments") || "[]");
+      onceki.push(demoRandevu);
+      localStorage.setItem("demoAppointments", JSON.stringify(onceki));
+
+      alert("Randevu başarıyla oluşturuldu!");
+      window.location.href = "randevularım.html";
     });
   </script>
 </body>
 </html>
-
-
-
-
-
