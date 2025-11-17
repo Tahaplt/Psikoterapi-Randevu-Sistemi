@@ -24,6 +24,8 @@
       <input type="password" id="password" name="password" required><br><br>
 
       <button type="submit">Giriş Yap</button>
+      <button type="button" id="demoLoginBtn">Demo Hesapla Giriş Yap</button>
+
     </form>
   </main>
 
@@ -32,19 +34,6 @@
   </footer>
 
   <script>
-     // Eğer localStorage'da user yoksa sahte kullanıcı ekle
-if (!localStorage.getItem("user")) {
-  localStorage.setItem("user", JSON.stringify({
-    name: "Demo Psikolog",
-    email: "demo@psiko.com",
-    role: "psikolog", // ya da "danisan"
-    age: 35,
-    photo: "",
-    specialty: ["Aile Terapisi", "Depresyon"],
-    availableHours: ["10:00", "14:00"]
-  }));
-}
-
     
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -79,8 +68,24 @@ if (!localStorage.getItem("user")) {
         alert("Sunucuya bağlanılamadı.");
       }
     });
+    document.getElementById("demoLoginBtn").addEventListener("click", () => {
+  const demoUser = {
+    name: "Demo Danışan",
+    email: "demo@demo.com",
+    role: "danisan", // veya "psikolog"
+    age: 28,
+    specialty: ["Depresyon", "Anksiyete"],
+    availableHours: ["10:00", "13:00", "16:00"]
+  };
+
+  localStorage.setItem("user", JSON.stringify(demoUser));
+  alert("Demo giriş başarılı!");
+  window.location.href = "randevu.html"; // ya da profile.html (rolüne göre)
+});
+
   </script>
 </body>
 </html>
+
 
 
