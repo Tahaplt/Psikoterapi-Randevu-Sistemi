@@ -26,6 +26,19 @@
   </footer>
 
   <script>
+    // Eğer localStorage'da user yoksa sahte kullanıcı ekle
+if (!localStorage.getItem("user")) {
+  localStorage.setItem("user", JSON.stringify({
+    name: "Demo Psikolog",
+    email: "demo@psiko.com",
+    role: "psikolog", // ya da "danisan"
+    age: 35,
+    photo: "",
+    specialty: ["Aile Terapisi", "Depresyon"],
+    availableHours: ["10:00", "14:00"]
+  }));
+}
+
   document.addEventListener("DOMContentLoaded", () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const appointmentsList = document.getElementById("appointmentsList");
@@ -122,4 +135,5 @@
 </script>
 </body>
 </html>
+
 
