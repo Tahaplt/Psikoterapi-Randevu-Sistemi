@@ -8,10 +8,9 @@
     /* SLIDER */
     .slider {
       width: 100%;
-      height: 400px;
+      height: 500px;
       overflow: hidden;
       position: relative;
-      margin-bottom: 40px;
     }
 
     .slider img {
@@ -19,8 +18,11 @@
       height: 100%;
       object-fit: cover;
       position: absolute;
+      top: 0;
+      left: 0;
       opacity: 0;
       animation: slide 15s infinite;
+      transition: opacity 1s ease-in-out;
     }
 
     .slider img:nth-child(1) { animation-delay: 0s; }
@@ -68,7 +70,7 @@
     <div class="slider">
       <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80" alt="Orman">
       <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80" alt="Göl ve Dağ">
-      <img src="https://images.unsplash.com/photo-1493244040629-496f6d136cc3?auto=format&fit=crop&w=1600&q=80" alt="Gün batımı">
+      <img src="https://images.pexels.com/photos/158063/bellingrath-gardens-alabama-landscape-scenic-158063.jpeg">
     </div>
 
     <div class="content">
@@ -106,4 +108,5 @@
   </script>
 </body>
 </html>
+
 
