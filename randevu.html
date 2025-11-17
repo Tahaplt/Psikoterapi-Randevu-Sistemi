@@ -60,11 +60,6 @@
   </footer>
 
   <script>
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || user.role !== "danisan") {
-      alert("Bu sayfaya yalnızca danışanlar erişebilir. Lütfen giriş yapın.");
-      window.location.href = "login.html";
-    }
 
     const psikologSelect = document.getElementById("psikolog");
     const psikologListesi = document.getElementById("psikologListesi");
@@ -175,4 +170,5 @@
   </script>
 </body>
 </html>
+
 
