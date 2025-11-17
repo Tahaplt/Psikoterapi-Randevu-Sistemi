@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Giriş Yap</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Psikoterapi Randevu Sistemi</h1>
+    <nav>
+      <a href="index.html">Ana Sayfa</a>
+      <a href="register.html">Kayıt Ol</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Giriş Yap</h2>
+    <form id="loginForm">
+      <label for="email">E-posta:</label><br>
+      <input type="email" id="email" name="email" required><br><br>
+
+      <label for="password">Şifre:</label><br>
+      <input type="password" id="password" name="password" required><br><br>
+
+      <button type="submit">Giriş Yap</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tüm Hakları Saklıdır</p>
+  </footer>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+          alert("Giriş başarılı!");
+          window.location.href = data.user.role === "psikolog" ? "profile.html" : "randevu.html";
+        } else {
+          alert(data.message || "Giriş başarısız.");
+        }
+
+      } catch (err) {
+        console.error("Giriş hatası:", err);
+        alert("Sunucuya bağlanılamadı.");
+      }
+    });
+  </script>
+</body>
+</html>

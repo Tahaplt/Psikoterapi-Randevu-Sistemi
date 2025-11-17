@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ana Sayfa | Psikolog Randevu</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Psikoterapi Randevu Sistemi</h1>
+    <nav id="navLinks">
+      <!-- Menü bağlantıları JS ile eklenecek -->
+    </nav>
+  </header>
+
+  <main>
+    <h2>Hoş Geldiniz</h2>
+    <p>Uygun psikoloğu seçin, kolayca randevu alın.</p>
+    <a href="randevu.html" id="randevuBtn" style="display: none;">Randevu Al</a>
+    <div class="slider">
+      <img src="images/doga1.jpg" alt="Slider görseli" class="slide active">
+      <img src="images/doga2.jpg" alt="Slider görseli" class="slide">
+      <img src="images/doga3.jpg" alt="Slider görseli" class="slide">
+    </div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tüm Hakları Saklıdır</p>
+  </footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const navLinks = document.getElementById("navLinks");
+    const randevuBtn = document.getElementById("randevuBtn");
+
+    if (user) {
+      const panelLink = "randevularım.html";
+
+      navLinks.innerHTML = `
+        <span>Merhaba, ${user.name}</span>
+        <a href="${panelLink}">Randevularım</a>
+        ${user.role === "psikolog" ? '<a href="profile.html">Profilim</a>' : ''}
+        <a href="#" id="logoutBtn">Çıkış Yap</a>
+      `;
+
+      if (user.role === "danisan" && randevuBtn) {
+        randevuBtn.style.display = "inline-block";
+      }
+
+      document.addEventListener("click", function (e) {
+        if (e.target.id === "logoutBtn") {
+          localStorage.removeItem("user");
+          window.location.href = "login.html";
+        }
+      });
+    } else {
+      navLinks.innerHTML = `
+        <a href="login.html">Giriş Yap</a>
+        <a href="register.html">Kayıt Ol</a>
+      `;
+    }
+
+    // SLIDER geçiş fonksiyonu
+    const slides = document.querySelectorAll(".slide");
+    let index = 0;
+
+    if (slides.length > 0) {
+      slides[index].classList.add("active");
+
+      setInterval(() => {
+        slides[index].classList.remove("active");
+        index = (index + 1) % slides.length;
+        slides[index].classList.add("active");
+      }, 5000); // 5 saniyede bir geçiş
+    }
+  });
+</script>
+</body>
+</html>

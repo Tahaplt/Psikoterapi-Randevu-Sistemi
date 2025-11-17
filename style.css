@@ -1,0 +1,201 @@
+/* GENEL */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f2f6f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3 {
+  color: #2c3e50;
+}
+
+a {
+  text-decoration: none;
+  color: #4a90e2;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* HEADER */
+header {
+  background-color: #4a90e2;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  
+  top: 0;
+  z-index: 10;
+}
+
+body {
+  scroll-padding-top: 100px; /* header yüksekliğini telafi eder */
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: white;
+  margin: 0 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  transition: background-color 0.3s;
+}
+
+nav a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+
+/* ANA İÇERİK */
+main {
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: auto;
+  text-align: center;
+}
+
+/* FORM */
+form {
+  max-width: 450px;
+  margin: 0 auto;
+  text-align: left;
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 15px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+button {
+  background-color: #4a90e2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #357ab8;
+}
+
+/* SLIDER */
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  height: 400px;
+  margin: 40px auto;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.slide {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.slide.active {
+  display: block;
+}
+
+/* PSİKOLOG KARTLARI */
+.psikolog-kart {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.psikolog-kart img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4a90e2;
+}
+
+/* RANDEVU LİSTESİ */
+#appointmentsList ul {
+  list-style: none;
+  padding: 0;
+}
+
+#appointmentsList li {
+  background: #fff;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#appointmentsList button {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 14px;
+  background-color: #e74c3c;
+  border: none;
+  border-radius: 4px;
+}
+
+#appointmentsList button:hover {
+  background-color: #c0392b;
+}
+
+/* FOOTER */
+footer {
+  background-color: #eee;
+  text-align: center;
+  padding: 20px;
+  margin-top: 60px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 24px;
+  }
+
+  .psikolog-kart {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  form {
+    padding: 20px;
+  }
+}

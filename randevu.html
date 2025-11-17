@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Randevu Al</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .psikolog-kart {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .psikolog-kart img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Psikoterapi Randevu Sistemi</h1>
+    <nav>
+      <a href="index.html">Ana Sayfa</a>
+      <a href="randevularım.html">Randevularım</a>
+      <a href="login.html">Çıkış Yap</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Randevu Al</h2>
+
+    <div id="psikologListesi"></div>
+
+    <form id="randevuForm">
+      <label for="psikolog">Psikolog Seç:</label><br>
+      <select id="psikolog" name="psikolog" required>
+        <option value="">Seçiniz</option>
+      </select><br><br>
+
+      <label for="date">Tarih:</label><br>
+      <input type="date" id="date" name="date" required><br><br>
+
+      <label for="time">Saat:</label><br>
+      <select id="time" name="time" required>
+        <option value="">Önce psikolog ve tarih seçin</option>
+      </select><br><br>
+
+      <button type="submit">Randevu Al</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tüm Hakları Saklıdır</p>
+  </footer>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || user.role !== "danisan") {
+      alert("Bu sayfaya yalnızca danışanlar erişebilir. Lütfen giriş yapın.");
+      window.location.href = "login.html";
+    }
+
+    const psikologSelect = document.getElementById("psikolog");
+    const psikologListesi = document.getElementById("psikologListesi");
+    const timeSelect = document.getElementById("time");
+    const dateInput = document.getElementById("date");
+
+    let psikologVerileri = [];
+
+    // Psikologları getir ve listele
+    fetch("http://localhost:3000/psikologlar")
+      .then(res => res.json())
+      .then(data => {
+        psikologVerileri = data;
+        data.forEach(psikolog => {
+          const option = document.createElement("option");
+          option.value = psikolog.email;
+          option.textContent = `${psikolog.name}`;
+          psikologSelect.appendChild(option);
+
+          // Görsel olarak da listele
+          const card = document.createElement("div");
+          card.className = "psikolog-kart";
+          card.innerHTML = `
+            <img src="${psikolog.photo || 'https://via.placeholder.com/60'}" alt="Fotoğraf">
+            <div>
+              <strong>${psikolog.name}</strong><br>
+              Yaş: ${psikolog.age || 'Belirtilmemiş'}<br>
+              Uzmanlık: ${Array.isArray(psikolog.specialty) ? psikolog.specialty.join(", ") : 'Yok'}<br>
+              Uygun Saatler: ${Array.isArray(psikolog.availableHours) ? psikolog.availableHours.join(", ") : 'Yok'}
+            </div>
+          `;
+          psikologListesi.appendChild(card);
+        });
+      });
+
+    // Tarih veya psikolog değişince uygun saatleri getir
+    function updateAvailableTimes() {
+      const selectedEmail = psikologSelect.value;
+      const selectedDate = dateInput.value;
+      timeSelect.innerHTML = "";
+
+      const psikolog = psikologVerileri.find(p => p.email === selectedEmail);
+      if (!psikolog || !psikolog.availableHours) return;
+
+      // Randevuları al
+      fetch(`http://localhost:3000/appointments?psikolog=${selectedEmail}`)
+        .then(res => res.json())
+        .then(randevular => {
+          psikolog.availableHours.forEach(saat => {
+            const option = document.createElement("option");
+            option.value = saat;
+            const isTaken = randevular.some(r => r.date === selectedDate && r.time === saat);
+            if (!isTaken) {
+              option.textContent = saat;
+              timeSelect.appendChild(option);
+            }
+          });
+
+          if (timeSelect.children.length === 0) {
+            const noOption = document.createElement("option");
+            noOption.textContent = "Seçilebilir saat yok";
+            noOption.disabled = true;
+            timeSelect.appendChild(noOption);
+          }
+        });
+    }
+
+    psikologSelect.addEventListener("change", updateAvailableTimes);
+    dateInput.addEventListener("change", updateAvailableTimes);
+
+    // Form gönderimi
+    const form = document.getElementById("randevuForm");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const psikolog = psikologSelect.value;
+      const date = dateInput.value;
+      const time = timeSelect.value;
+
+      if (!psikolog || !date || !time) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      fetch("http://localhost:3000/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: user.email,
+          psikolog,
+          date,
+          time
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Randevu oluşturuldu.");
+        form.reset();
+        timeSelect.innerHTML = '<option value="">Önce psikolog ve tarih seçin</option>';
+      })
+      .catch(err => {
+        console.error("Randevu hatası:", err);
+        alert("Bir hata oluştu.");
+      });
+    });
+  </script>
+</body>
+</html>
+

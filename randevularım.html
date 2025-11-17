@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Randevularım</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Psikoterapi Randevu Sistemi</h1>
+    <nav>
+      <a href="index.html">Ana Sayfa</a>
+      <a href="login.html" id="logoutBtn">Çıkış Yap</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Randevularım</h2>
+    <div id="appointmentsList">
+      <p>Randevular yükleniyor...</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tüm Hakları Saklıdır</p>
+  </footer>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const appointmentsList = document.getElementById("appointmentsList");
+
+    if (!user) {
+      alert("Lütfen giriş yapınız.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const queryParam = user.role === "psikolog"
+      ? `psikolog=${encodeURIComponent(user.email)}`
+      : `email=${encodeURIComponent(user.email)}`;
+
+    fetch(`http://localhost:3000/appointments?${queryParam}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) {
+          appointmentsList.innerHTML = "<p>Henüz randevunuz yok.</p>";
+          return;
+        }
+
+        // Tarihlere göre grupla
+        const grouped = {};
+        data.forEach(appt => {
+          if (!grouped[appt.date]) grouped[appt.date] = [];
+          grouped[appt.date].push(appt);
+        });
+
+        appointmentsList.innerHTML = "";
+
+        Object.keys(grouped).sort().forEach(date => {
+          const container = document.createElement("div");
+          container.style.marginBottom = "20px";
+
+          const title = document.createElement("h3");
+          title.style.cursor = "pointer";
+          title.textContent = `📅 ${date}`;
+          title.addEventListener("click", () => {
+            detailList.style.display = detailList.style.display === "none" ? "block" : "none";
+          });
+
+          const detailList = document.createElement("ul");
+          detailList.style.display = "none";
+
+          grouped[date].forEach(appt => {
+            const li = document.createElement("li");
+            const name = user.role === "psikolog" ? appt.client_name : appt.psikolog_name;
+
+            li.innerHTML = `${appt.time} - ${name} <button data-id="${appt.id}">Sil</button>`;
+            detailList.appendChild(li);
+          });
+
+          container.appendChild(title);
+          container.appendChild(detailList);
+          appointmentsList.appendChild(container);
+        });
+
+        // Silme
+        document.querySelectorAll("button[data-id]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const confirmed = confirm("Bu randevuyu silmek istiyor musunuz?");
+            if (!confirmed) return;
+
+            const id = btn.getAttribute("data-id");
+
+            fetch(`http://localhost:3000/appointments/${id}`, {
+              method: "DELETE"
+            })
+              .then(res => res.json())
+              .then(result => {
+                alert(result.message);
+                location.reload();
+              })
+              .catch(err => {
+                console.error("Silme hatası:", err);
+                alert("Randevu silinemedi.");
+              });
+          });
+        });
+      })
+      .catch(err => {
+        console.error("Randevu yükleme hatası:", err);
+        appointmentsList.innerHTML = "<p>Randevular yüklenirken bir hata oluştu.</p>";
+      });
+
+    // Çıkış
+    document.getElementById("logoutBtn").addEventListener("click", function (e) {
+      e.preventDefault();
+      localStorage.removeItem("user");
+      window.location.href = "login.html";
+    });
+  });
+</script>
+</body>
+</html>

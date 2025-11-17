@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mevcut Psikologlar</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Psikoterapi Randevu Sistemi</h1>
+    <nav>
+      <a href="index.html">Ana Sayfa</a>
+      <a href="randevu.html">Randevu Al</a>
+      <a href="randevularım.html">Randevularım</a>
+      <a href="login.html" id="logoutBtn">Çıkış Yap</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Mevcut Psikologlar</h2>
+    <div id="psikologListesi">Yükleniyor...</div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tüm Hakları Saklıdır</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("http://localhost:3000/psikologlar")
+        .then(res => res.json())
+        .then(data => {
+          const liste = document.getElementById("psikologListesi");
+          liste.innerHTML = "";
+
+          if (!Array.isArray(data) || data.length === 0) {
+            liste.innerHTML = "<p>Hiç psikolog bulunamadı.</p>";
+            return;
+          }
+
+          data.forEach(psikolog => {
+            const div = document.createElement("div");
+            div.classList.add("psikolog-karti");
+
+            div.innerHTML = `
+              <h3>${psikolog.name}</h3>
+              <p><strong>Yaş:</strong> ${psikolog.age || "Belirtilmemiş"}</p>
+              <p><strong>Şehir:</strong> ${psikolog.city || "-"}</p>
+              <p><strong>Uzmanlık Alanları:</strong> ${psikolog.specialty || "-"}</p>
+              <p><strong>Uygun Saatler:</strong> ${psikolog.availableHours || "-"}</p>
+            `;
+
+            liste.appendChild(div);
+          });
+        })
+        .catch(err => {
+          console.error("Psikolog listesi yüklenemedi:", err);
+          document.getElementById("psikologListesi").innerHTML = "<p>Hata oluştu.</p>";
+        });
+
+      // Çıkış işlemi
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("user");
+        window.location.href = "login.html";
+      });
+    });
+  </script>
+</body>
+</html>
