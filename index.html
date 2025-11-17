@@ -2,84 +2,107 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Ana Sayfa | Psikolog Randevu</title>
+  <title>Psikoterapi Randevu Sistemi</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* SLIDER */
+    .slider {
+      width: 100%;
+      height: 400px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 40px;
+    }
+
+    .slider img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      opacity: 0;
+      animation: slide 15s infinite;
+    }
+
+    .slider img:nth-child(1) { animation-delay: 0s; }
+    .slider img:nth-child(2) { animation-delay: 5s; }
+    .slider img:nth-child(3) { animation-delay: 10s; }
+
+    @keyframes slide {
+      0%   { opacity: 0; }
+      10%  { opacity: 1; }
+      30%  { opacity: 1; }
+      40%  { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* Ana içerik */
+    .content {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .content h2 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .content p {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 18px;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Psikoterapi Randevu Sistemi</h1>
     <nav id="navLinks">
-      <!-- Menü bağlantıları JS ile eklenecek -->
+      <a href="login.html">Giriş Yap</a>
+      <a href="register.html">Kayıt Ol</a>
+      <a href="login.html">Demo Giriş</a>
     </nav>
   </header>
 
   <main>
-    <h2>Hoş Geldiniz</h2>
-    <p>Uygun psikoloğu seçin, kolayca randevu alın.</p>
-    <a href="randevu.html" id="randevuBtn" style="display: none;">Randevu Al</a>
     <div class="slider">
-      <img src="images/doga1.jpg" alt="Slider görseli" class="slide active">
-      <img src="images/doga2.jpg" alt="Slider görseli" class="slide">
-      <img src="images/doga3.jpg" alt="Slider görseli" class="slide">
+      <img src="https://source.unsplash.com/1600x500/?forest,nature" alt="Doğa 1">
+      <img src="https://source.unsplash.com/1600x500/?mountains,calm" alt="Doğa 2">
+      <img src="https://source.unsplash.com/1600x500/?lake,peace" alt="Doğa 3">
     </div>
 
+    <div class="content">
+      <h2>Psikolojik Destek İçin İlk Adımı Atın</h2>
+      <p>Bu sistem sayesinde ruh sağlığınız için uzman psikologlardan kolayca randevu alabilir, uygun saatleri görebilir ve danışmanlık sürecinizi planlayabilirsiniz.</p>
+    </div>
   </main>
 
   <footer>
     <p>&copy; 2025 Tüm Hakları Saklıdır</p>
   </footer>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
+  <script>
+    // NAVIGATION: Giriş yapılmışsa göster
     const user = JSON.parse(localStorage.getItem("user"));
     const navLinks = document.getElementById("navLinks");
-    const randevuBtn = document.getElementById("randevuBtn");
 
     if (user) {
       const panelLink = "randevularım.html";
-
       navLinks.innerHTML = `
         <span>Merhaba, ${user.name}</span>
-        <a href="${panelLink}">Randevularım</a>
+        <a href="randevu.html">Randevu Al</a>
         ${user.role === "psikolog" ? '<a href="profile.html">Profilim</a>' : ''}
+        <a href="${panelLink}">Randevularım</a>
         <a href="#" id="logoutBtn">Çıkış Yap</a>
       `;
+    }
 
-      if (user.role === "danisan" && randevuBtn) {
-        randevuBtn.style.display = "inline-block";
+    document.addEventListener("click", function (e) {
+      if (e.target.id === "logoutBtn") {
+        localStorage.removeItem("user");
+        window.location.href = "index.html";
       }
-
-      document.addEventListener("click", function (e) {
-        if (e.target.id === "logoutBtn") {
-          localStorage.removeItem("user");
-          window.location.href = "login.html";
-        }
-      });
-    } else {
-navLinks.innerHTML = `
-  <a href="login.html">Giriş Yap</a>
-  <a href="register.html">Kayıt Ol</a>
-  <a href="login.html">Demo Giriş</a>
-`;
-
-    }
-
-    // SLIDER geçiş fonksiyonu
-    const slides = document.querySelectorAll(".slide");
-    let index = 0;
-
-    if (slides.length > 0) {
-      slides[index].classList.add("active");
-
-      setInterval(() => {
-        slides[index].classList.remove("active");
-        index = (index + 1) % slides.length;
-        slides[index].classList.add("active");
-      }, 5000); // 5 saniyede bir geçiş
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
-
-
