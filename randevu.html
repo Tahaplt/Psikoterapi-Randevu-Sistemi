@@ -9,6 +9,7 @@
   <header>
     <h1>Randevu Al</h1>
     <nav id="navLinks"></nav>
+    <span id="liveClock"></span>
   </header>
 
   <main>
@@ -43,7 +44,6 @@
     const user = JSON.parse(localStorage.getItem("user"));
     const navLinks = document.getElementById("navLinks");
 
-    // NAVIGATION BAR
     if (user) {
       navLinks.innerHTML = `
         <span>Merhaba, ${user.name}</span>
@@ -60,18 +60,21 @@
 
     document.addEventListener("click", function (e) {
       if (e.target.id === "logoutBtn") {
+        e.preventDefault();
         localStorage.removeItem("user");
         window.location.href = "login.html";
       }
     });
 
-    // SABİT DEMO PSİKOLOGLAR
+    const dateInput = document.getElementById("tarih");
+    dateInput.min = new Date().toISOString().split("T")[0];
+
     const demoPsikologlar = [
       {
         name: "Mustafa Taha Polat",
         email: "taha@demo.com",
         age: 30,
-       photo: "https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg",
         specialty: ["Travma", "Aile Terapisi"],
         availableHours: ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
       },
@@ -89,9 +92,7 @@
     const selectPsikolog = document.getElementById("psikologSec");
     const selectSaat = document.getElementById("saatSec");
 
-    // PSİKOLOGLARI GÖSTER
     demoPsikologlar.forEach(p => {
-      // Kart gösterimi
       const card = document.createElement("div");
       card.classList.add("psikolog-karti");
       card.innerHTML = `
@@ -105,14 +106,12 @@
       `;
       psikologListesi.appendChild(card);
 
-      // Seçim için dropdown'a ekle
       const option = document.createElement("option");
       option.value = p.email;
       option.textContent = p.name;
       selectPsikolog.appendChild(option);
     });
 
-    // SAATLERİ GÜNCELLE
     selectPsikolog.addEventListener("change", () => {
       const selected = demoPsikologlar.find(p => p.email === selectPsikolog.value);
       if (!selected) return;
@@ -125,7 +124,6 @@
       });
     });
 
-    // FORM GÖNDERİMİ
     document.getElementById("randevuForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const psikologEmail = selectPsikolog.value;
@@ -155,6 +153,7 @@
       window.location.href = "randevularım.html";
     });
   </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
