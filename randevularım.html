@@ -9,6 +9,7 @@
   <header>
     <h1>Randevularım</h1>
     <nav id="navLinks"></nav>
+    <span id="liveClock"></span>
   </header>
 
   <main>
@@ -26,7 +27,6 @@
     const navLinks = document.getElementById("navLinks");
     const randevuListesi = document.getElementById("randevuListesi");
 
-    // NAVIGATION BAR
     if (user) {
       navLinks.innerHTML = `
         <span>Merhaba, ${user.name}</span>
@@ -44,12 +44,12 @@
 
     document.addEventListener("click", function (e) {
       if (e.target.id === "logoutBtn") {
+        e.preventDefault();
         localStorage.removeItem("user");
         window.location.href = "login.html";
       }
     });
 
-    // Randevuları listele
     if (!user) {
       randevuListesi.innerHTML = "<p>Lütfen önce giriş yapın.</p>";
     } else {
@@ -76,5 +76,7 @@
       }
     }
   </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
