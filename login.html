@@ -12,6 +12,7 @@
       <a href="index.html">Ana Sayfa</a>
       <a href="register.html">Kayıt Ol</a>
     </nav>
+    <span id="liveClock"></span>
   </header>
 
   <main>
@@ -38,7 +39,6 @@
   </footer>
 
   <script>
-    // Normal giriş
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
@@ -68,7 +68,6 @@
       }
     });
 
-    // Demo Danışan
     document.getElementById("demoDanisanBtn").addEventListener("click", () => {
       const demoUser = {
         name: "Demo Danışan",
@@ -80,7 +79,6 @@
       window.location.href = "randevu.html";
     });
 
-    // Demo Psikolog
     document.getElementById("demoPsikologBtn").addEventListener("click", () => {
       const demoUser = {
         name: "Demo Psikolog",
@@ -95,5 +93,7 @@
       window.location.href = "profile.html";
     });
   </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
