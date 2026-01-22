@@ -5,7 +5,6 @@
   <title>Psikoterapi Randevu Sistemi</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* SLIDER */
     .slider {
       width: 100%;
       height: 500px;
@@ -37,7 +36,6 @@
       100% { opacity: 0; }
     }
 
-    /* Ana içerik */
     .content {
       text-align: center;
       padding: 20px;
@@ -64,13 +62,14 @@
       <a href="register.html">Kayıt Ol</a>
       <a href="login.html">Demo Giriş</a>
     </nav>
+    <span id="liveClock"></span>
   </header>
 
   <main>
     <div class="slider">
       <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80" alt="Orman">
       <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80" alt="Göl ve Dağ">
-      <img src="https://images.pexels.com/photos/158063/bellingrath-gardens-alabama-landscape-scenic-158063.jpeg">
+      <img src="https://images.pexels.com/photos/158063/bellingrath-gardens-alabama-landscape-scenic-158063.jpeg" alt="Doğa">
     </div>
 
     <div class="content">
@@ -84,7 +83,6 @@
   </footer>
 
   <script>
-    // NAVIGATION: Giriş yapılmışsa göster
     const user = JSON.parse(localStorage.getItem("user"));
     const navLinks = document.getElementById("navLinks");
 
@@ -106,7 +104,7 @@
       }
     });
   </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
-
