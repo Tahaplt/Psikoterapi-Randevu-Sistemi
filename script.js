@@ -1,28 +1,71 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") document.body.classList.add("dark");
+
+  const header = document.querySelector("header");
+  if (header) {
+    let liveClock = document.getElementById("liveClock");
+    if (!liveClock) {
+      liveClock = document.createElement("span");
+      liveClock.id = "liveClock";
+      header.appendChild(liveClock);
+    }
+
+    let clockText = document.getElementById("clockText");
+    let themeToggle = document.getElementById("themeToggle");
+
+    if (!clockText || !themeToggle) {
+      liveClock.innerHTML = '<span id="clockText"></span><button id="themeToggle" type="button" aria-label="Tema Değiştir"></button>';
+      clockText = document.getElementById("clockText");
+      themeToggle = document.getElementById("themeToggle");
+    }
+
+    function setToggleIcon() {
+      themeToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    }
+
+    function tick() {
+      const now = new Date();
+      const tarih = now.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const saat = now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      clockText.textContent = `${tarih} ${saat}`;
+    }
+
+    themeToggle.addEventListener("click", function () {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+      setToggleIcon();
+    });
+
+    setToggleIcon();
+    tick();
+    setInterval(tick, 1000);
+  }
+
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const role = document.getElementById("role").value;
+      const nameEl = document.getElementById("name");
+      const emailEl = document.getElementById("email");
+      const passEl = document.getElementById("password");
+      const roleEl = document.getElementById("role");
+
+      const name = nameEl ? nameEl.value.trim() : "";
+      const email = emailEl ? emailEl.value.trim() : "";
+      const password = passEl ? passEl.value.trim() : "";
+      const role = roleEl ? roleEl.value : "";
 
       fetch("http://localhost:3000/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, role })
       })
         .then(res => res.json())
         .then(data => {
-          if (data.message) {
-            alert(data.message);
-            localStorage.setItem("user", JSON.stringify(data.user));
-            window.location.href = "login.html";
-          }
+          if (data && data.message) alert(data.message);
+          window.location.href = "login.html";
         })
         .catch(err => {
           console.error("Kayıt hatası:", err);
@@ -36,26 +79,23 @@ document.addEventListener("DOMContentLoaded", function () {
     loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+      const emailEl = document.getElementById("email");
+      const passEl = document.getElementById("password");
+
+      const email = emailEl ? emailEl.value.trim() : "";
+      const password = passEl ? passEl.value.trim() : "";
 
       fetch("http://localhost:3000/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       })
         .then(res => res.json())
         .then(data => {
-          if (data.message) {
-            alert(data.message);
+          if (data && data.message) alert(data.message);
+          if (data && data.user) {
             localStorage.setItem("user", JSON.stringify(data.user));
-            if (data.user.role === "psikolog") {
-              window.location.href = "profile.html";
-            } else {
-              window.location.href = "randevu.html";
-            }
+            window.location.href = data.user.role === "psikolog" ? "profile.html" : "randevu.html";
           }
         })
         .catch(err => {
@@ -67,25 +107,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const randevuForm = document.getElementById("randevuForm");
   if (randevuForm) {
+    const dateEl = document.getElementById("tarih") || document.getElementById("date");
+    if (dateEl && dateEl.type === "date") {
+      dateEl.min = new Date().toISOString().split("T")[0];
+    }
+
     randevuForm.addEventListener("submit", function (e) {
+      const psikologEl = document.getElementById("psikologSec") || document.getElementById("psikolog");
+      const dateEl2 = document.getElementById("tarih") || document.getElementById("date");
+      const timeEl = document.getElementById("saatSec") || document.getElementById("time");
+
+      if (!psikologEl || !dateEl2 || !timeEl) return;
+
       e.preventDefault();
 
-      const psikolog = document.getElementById("psikolog").value;
-      const date = document.getElementById("date").value;
-      const time = document.getElementById("time").value;
+      const psikolog = psikologEl.value;
+      const date = dateEl2.value;
+      const time = timeEl.value;
 
-      const user = JSON.parse(localStorage.getItem("user"));
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user || !user.email) return alert("Lütfen önce giriş yapın.");
 
       fetch("http://localhost:3000/appointments", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: user.email, psikolog, date, time })
       })
         .then(res => res.json())
         .then(data => {
-          alert(data.message);
+          if (data && data.message) alert(data.message);
           randevuForm.reset();
         })
         .catch(err => {
@@ -97,12 +147,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const appointmentsList = document.getElementById("appointmentsList");
   if (appointmentsList) {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user || !user.email) {
+      appointmentsList.innerHTML = "<p>Lütfen önce giriş yapın.</p>";
+      return;
+    }
 
-    fetch(`http://localhost:3000/appointments?email=${user.email}`)
+    fetch(`http://localhost:3000/appointments?email=${encodeURIComponent(user.email)}`)
       .then(res => res.json())
       .then(data => {
-        if (data.length === 0) {
+        if (!Array.isArray(data) || data.length === 0) {
           appointmentsList.innerHTML = "<p>Henüz randevunuz yok.</p>";
         } else {
           const ul = document.createElement("ul");
@@ -119,12 +173,10 @@ document.addEventListener("DOMContentLoaded", function () {
           document.querySelectorAll(".deleteBtn").forEach(button => {
             button.addEventListener("click", function () {
               const id = this.getAttribute("data-id");
-              fetch(`http://localhost:3000/appointments/${id}`, {
-                method: "DELETE"
-              })
+              fetch(`http://localhost:3000/appointments/${id}`, { method: "DELETE" })
                 .then(res => res.json())
                 .then(result => {
-                  alert(result.message);
+                  if (result && result.message) alert(result.message);
                   location.reload();
                 })
                 .catch(err => {
@@ -143,7 +195,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
+    logoutBtn.addEventListener("click", function (e) {
+      if (logoutBtn.tagName.toLowerCase() === "a") e.preventDefault();
       localStorage.removeItem("user");
       alert("Çıkış yapıldı.");
       window.location.href = "login.html";
@@ -152,34 +205,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const profileForm = document.getElementById("profileForm");
   if (profileForm) {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+
+    const fullNameEl = document.getElementById("fullName");
+    const emailEl = document.getElementById("email");
+    const specialtyEl = document.getElementById("specialty");
+    const cityEl = document.getElementById("city");
+    const availableHoursEl = document.getElementById("availableHours");
+
     if (storedUser) {
-      document.getElementById("fullName").value = storedUser.name || "";
-      document.getElementById("email").value = storedUser.email || "";
-      document.getElementById("specialty").value = storedUser.specialty || "";
-      document.getElementById("city").value = storedUser.city || "";
-      document.getElementById("availableHours").value = storedUser.availableHours || "";
+      if (fullNameEl) fullNameEl.value = storedUser.name || "";
+      if (emailEl) emailEl.value = storedUser.email || "";
+      if (specialtyEl) specialtyEl.value = storedUser.specialty || "";
+      if (cityEl) cityEl.value = storedUser.city || "";
+      if (availableHoursEl) availableHoursEl.value = storedUser.availableHours || "";
     }
 
     profileForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("fullName").value;
-      const email = document.getElementById("email").value;
-      const specialty = document.getElementById("specialty").value;
-      const city = document.getElementById("city").value;
-      const availableHours = document.getElementById("availableHours").value;
+      let user = JSON.parse(localStorage.getItem("user") || "{}");
 
-      let user = JSON.parse(localStorage.getItem("user")) || {};
-
-      user.name = name;
-      user.email = email;
-      user.specialty = specialty;
-      user.city = city;
-      user.availableHours = availableHours;
+      if (fullNameEl) user.name = fullNameEl.value;
+      if (emailEl) user.email = emailEl.value;
+      if (specialtyEl) user.specialty = specialtyEl.value;
+      if (cityEl) user.city = cityEl.value;
+      if (availableHoursEl) user.availableHours = availableHoursEl.value;
 
       localStorage.setItem("user", JSON.stringify(user));
-
       alert("Profil bilgileriniz güncellendi!");
     });
   }
