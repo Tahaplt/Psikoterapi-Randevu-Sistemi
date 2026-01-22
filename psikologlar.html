@@ -14,6 +14,7 @@
       <a href="randevularım.html">Randevularım</a>
       <a href="login.html" id="logoutBtn">Çıkış Yap</a>
     </nav>
+    <span id="liveClock"></span>
   </header>
 
   <main>
@@ -42,12 +43,15 @@
             const div = document.createElement("div");
             div.classList.add("psikolog-karti");
 
+            const specialtyText = Array.isArray(psikolog.specialty) ? psikolog.specialty.join(", ") : (psikolog.specialty || "-");
+            const hoursText = Array.isArray(psikolog.availableHours) ? psikolog.availableHours.join(", ") : (psikolog.availableHours || "-");
+
             div.innerHTML = `
               <h3>${psikolog.name}</h3>
               <p><strong>Yaş:</strong> ${psikolog.age || "Belirtilmemiş"}</p>
               <p><strong>Şehir:</strong> ${psikolog.city || "-"}</p>
-              <p><strong>Uzmanlık Alanları:</strong> ${psikolog.specialty || "-"}</p>
-              <p><strong>Uygun Saatler:</strong> ${psikolog.availableHours || "-"}</p>
+              <p><strong>Uzmanlık Alanları:</strong> ${specialtyText}</p>
+              <p><strong>Uygun Saatler:</strong> ${hoursText}</p>
             `;
 
             liste.appendChild(div);
@@ -58,13 +62,14 @@
           document.getElementById("psikologListesi").innerHTML = "<p>Hata oluştu.</p>";
         });
 
-      // Çıkış işlemi
-      document.getElementById("logoutBtn").addEventListener("click", () => {
+      document.getElementById("logoutBtn").addEventListener("click", (e) => {
+        e.preventDefault();
         localStorage.removeItem("user");
         window.location.href = "login.html";
       });
     });
   </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
