@@ -21,8 +21,9 @@
     <nav>
       <a href="index.html">Ana Sayfa</a>
       <a href="randevularım.html">Randevularım</a>
-      <button id="logoutBtn">Çıkış Yap</button>
+      <button id="logoutBtn" type="button">Çıkış Yap</button>
     </nav>
+    <span id="liveClock"></span>
   </header>
 
   <main>
@@ -55,73 +56,76 @@
   </footer>
 
   <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      window.location.href = "login.html";
+    }
 
-  // Saatler checkbox'larını oluştur
-  const hours = Array.from({ length: 9 }, (_, i) => `${i + 9}:00`.padStart(5, "0"));
-  const hoursContainer = document.getElementById("availableHoursContainer");
+    // Saatler checkbox'larını oluştur
+    const hours = Array.from({ length: 9 }, (_, i) => `${i + 9}:00`.padStart(5, "0"));
+    const hoursContainer = document.getElementById("availableHoursContainer");
 
-  hours.forEach(hour => {
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" value="${hour}"> ${hour}`;
-    hoursContainer.appendChild(label);
-  });
-
-  // Psikoloğun en güncel verilerini sunucudan çek ve forma yerleştir
-  fetch("http://localhost:3000/psikologlar")
-    .then(res => res.json())
-    .then(psikologlar => {
-      const guncel = psikologlar.find(p => p.email === user.email);
-      if (!guncel) return;
-
-      document.getElementById("fullName").value = guncel.name || "";
-      document.getElementById("email").value = guncel.email || "";
-      document.getElementById("specialty").value = Array.isArray(guncel.specialty) ? guncel.specialty.join(", ") : "";
-      document.getElementById("age").value = guncel.age || "";
-      document.getElementById("photo").value = guncel.photo || "";
-
-      if (Array.isArray(guncel.availableHours)) {
-        guncel.availableHours.forEach(hour => {
-          const cb = hoursContainer.querySelector(`input[value="${hour}"]`);
-          if (cb) cb.checked = true;
-        });
-      }
+    hours.forEach(hour => {
+      const label = document.createElement("label");
+      label.innerHTML = `<input type="checkbox" value="${hour}"> ${hour}`;
+      hoursContainer.appendChild(label);
     });
 
-  // Form gönderimi
-  document.getElementById("profileForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const updatedUser = {
-      name: document.getElementById("fullName").value.trim(),
-      age: parseInt(document.getElementById("age").value),
-      photo: document.getElementById("photo").value.trim(),
-      specialty: document.getElementById("specialty").value.split(",").map(s => s.trim()),
-      availableHours: Array.from(document.querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value)
-    };
-
-    fetch(`http://localhost:3000/users/${user.email}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedUser)
-    })
+    // Psikoloğun en güncel verilerini sunucudan çek ve forma yerleştir
+    fetch("http://localhost:3000/psikologlar")
       .then(res => res.json())
-      .then(data => {
-        localStorage.setItem("user", JSON.stringify({ ...user, ...updatedUser }));
-        alert("Profil kalıcı olarak güncellendi!");
-      })
-      .catch(err => {
-        console.error("Sunucu hatası:", err);
-        alert("Profil güncellenemedi.");
-      });
-  });
+      .then(psikologlar => {
+        const guncel = psikologlar.find(p => p.email === user.email);
+        if (!guncel) return;
 
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("user");
-    window.location.href = "login.html";
-  });
-</script>
+        document.getElementById("fullName").value = guncel.name || "";
+        document.getElementById("email").value = guncel.email || "";
+        document.getElementById("specialty").value = Array.isArray(guncel.specialty) ? guncel.specialty.join(", ") : "";
+        document.getElementById("age").value = guncel.age || "";
+        document.getElementById("photo").value = guncel.photo || "";
+
+        if (Array.isArray(guncel.availableHours)) {
+          guncel.availableHours.forEach(hour => {
+            const cb = hoursContainer.querySelector(`input[value="${hour}"]`);
+            if (cb) cb.checked = true;
+          });
+        }
+      });
+
+    // Form gönderimi
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const updatedUser = {
+        name: document.getElementById("fullName").value.trim(),
+        age: parseInt(document.getElementById("age").value),
+        photo: document.getElementById("photo").value.trim(),
+        specialty: document.getElementById("specialty").value.split(",").map(s => s.trim()),
+        availableHours: Array.from(document.querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value)
+      };
+
+      fetch(`http://localhost:3000/users/${user.email}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser)
+      })
+        .then(res => res.json())
+        .then(data => {
+          localStorage.setItem("user", JSON.stringify({ ...user, ...updatedUser }));
+          alert("Profil kalıcı olarak güncellendi!");
+        })
+        .catch(err => {
+          console.error("Sunucu hatası:", err);
+          alert("Profil güncellenemedi.");
+        });
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("user");
+      window.location.href = "login.html";
+    });
+  </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
-
-
